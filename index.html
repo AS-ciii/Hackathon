@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EduAble</title>
+    <link rel="stylesheet" href="static/style.css">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+</head>
+<body>
+    <div class="navbar">
+        <div class="c_logo">
+            <img src="static/logo.png" id="logo">
+            <p>EduAble</p>
+        </div>
+        <button class="mode" id="mode"><i class='bx bxs-moon' id="moon"></i></button>
+    </div>
+    <div class="summary">
+        <div class="abstract">
+            <h1>Learning made easy!</h1>
+            <p>Welcome to our website focused on supporting dyslexic individuals. We've designed this platform with accessibility in mind, aiming to provide a user-friendly experience for all visitors. Explore our tools for Optical Character Recognition (OCR) and text summarization, enhanced with features such as audio playback to assist with comprehension. Our goal is to empower dyslexic users by making information more accessible and easier to engage with. Join us in fostering inclusivity through technology!</p>
+        </div>
+        <div class="img">
+            <img src="static/img.png" id="dyslexic_boy">
+        </div>
+    </div>
+    <div class="container">
+        <div id="uploadForm">
+            <h3>Upload the image to be read:</h3>
+            <input type="file" id="imageInput" accept="image/*">
+            <button onclick="uploadImage()">Upload Image</button>
+        </div>
+        <div id="output">
+            <div id="originalText" class="result-section">
+                <h3>Original Text:</h3>
+                <p></p>
+                <h5>Original Sound:</h5>
+                <audio controls id="originalAudio"></audio>
+            </div>
+            <div id="summarizedText" class="result-section">
+                <h3>Summarized Text:</h3>
+                <p></p>
+                <h5>Summarized Sound:</h5>
+                <audio controls id="summarizedAudio"></audio>
+            </div>
+        </div>
+    </div>
+    <div class = "foot">
+        <p>Made by Abhishek Kumar, Abhishek IJ, Dheeraj R, Ajay Shenoy</p>
+    </div>
+    <script>
+        const darkModeButton = document.getElementById("mode");
+        const icon_mode = document.getElementById("moon");
+
+        darkModeButton.addEventListener("click", function () {
+            if (icon_mode.classList.contains("bxs-moon")) {
+                document.body.classList.add("light-mode");
+                icon_mode.style.fontSize = "20px";
+            } else {
+                document.body.classList.remove("light-mode");
+                icon_mode.style.fontSize = "20px";
+            }
+            icon_mode.classList.toggle("bxs-moon");
+            icon_mode.classList.toggle("bxs-sun");
+        });
+
+        async function uploadImage() {
+            const input = document.getElementById('imageInput');
+            if (input.files.length === 0) {
+                alert('Please select an image to upload.');
+                return;
+            }
+            const file = input.files[0];
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+                const result = await response.json();
+                if (result.success) {
+                    document.querySelector('#originalText p').textContent = result.original_text;
+                    document.querySelector('#summarizedText p').textContent = result.summarized_text;
+                    document.getElementById('originalAudio').src = result.original_sound;
+                    document.getElementById('summarizedAudio').src = result.summary_sound;
+                    document.getElementById('originalText').classList.add('expanded');
+                    document.getElementById('summarizedText').classList.add('expanded');
+                } else {
+                    alert('Error: ' + result.error);
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while uploading the image.');
+            }
+        }
+    </script>
+</body>
+</html>
+
